@@ -21,8 +21,8 @@ func NewValetClient() ValetClient {
 	}
 }
 
-func (c *ValetClient) urlFor(suffix string) (string, error) {
-	return url.JoinPath(c.apiRoot, suffix)
+func (c *ValetClient) urlFor(suffix ...string) (string, error) {
+	return url.JoinPath(c.apiRoot, suffix...)
 }
 
 func (c *ValetClient) SeriesList() (map[SeriesName]*SeriesInfo, error) {
@@ -79,4 +79,27 @@ func (c *ValetClient) GroupList() (map[GroupName]*GroupInfo, error) {
 		info.Name = name
 	}
 	return r.Groups, nil
+}
+
+func (c *ValetClient) Series(name string) (*SeriesInfo, error) {
+	r := SeriesResponse{}
+
+	u, err := c.urlFor("series", name)
+	if err != nil {
+		return r.Info, fmt.Errorf("joining URL: %w", err)
+	}
+
+	resp, err := http.Get(u)
+	if err != nil {
+		return r.Info, fmt.Errorf("GETting: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&r)
+	if err != nil {
+		return r.Info, fmt.Errorf("Unmarshalling JSON: %w", err)
+	}
+
+	return r.Info, nil
 }
