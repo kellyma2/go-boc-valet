@@ -25,24 +25,32 @@ func (c *ValetClient) urlFor(suffix ...string) (string, error) {
 	return url.JoinPath(c.apiRoot, suffix...)
 }
 
-func (c *ValetClient) SeriesList() (map[SeriesName]*SeriesInfo, error) {
-	r := ListSeriesResponse{}
-
-	u, err := c.urlFor("/lists/series")
+func (c *ValetClient) getUrlFor(r interface{}, suffix ...string) error {
+	u, err := c.urlFor(suffix...)
 	if err != nil {
-		return r.Series, fmt.Errorf("joining URL: %w", err)
+		return fmt.Errorf("joining URL: %w", err)
 	}
 
 	resp, err := http.Get(u)
 	if err != nil {
-		return r.Series, fmt.Errorf("GETting: %w", err)
+		return fmt.Errorf("GETting: %w", err)
 	}
 
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(&r)
 	if err != nil {
-		return r.Series, fmt.Errorf("Unmarshalling JSON: %w", err)
+		return fmt.Errorf("Unmarshalling JSON: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ValetClient) SeriesList() (map[SeriesName]*SeriesInfo, error) {
+	r := ListSeriesResponse{}
+
+	if err := c.getUrlFor(&r, "lists", "series"); err != nil {
+		return r.Series, err
 	}
 
 	// the response doesn't inject the name into the JSON dict
@@ -56,21 +64,8 @@ func (c *ValetClient) SeriesList() (map[SeriesName]*SeriesInfo, error) {
 func (c *ValetClient) GroupList() (map[GroupName]*GroupInfo, error) {
 	r := ListGroupsResponse{}
 
-	u, err := c.urlFor("/lists/groups")
-	if err != nil {
-		return r.Groups, fmt.Errorf("joining URL: %w", err)
-	}
-
-	resp, err := http.Get(u)
-	if err != nil {
-		return r.Groups, fmt.Errorf("GETting: %w", err)
-	}
-
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	if err != nil {
-		return r.Groups, fmt.Errorf("Unmarshalling JSON: %w", err)
+	if err := c.getUrlFor(&r, "lists", "groups"); err != nil {
+		return r.Groups, err
 	}
 
 	// the response doesn't inject the name into the JSON dict
@@ -83,23 +78,5 @@ func (c *ValetClient) GroupList() (map[GroupName]*GroupInfo, error) {
 
 func (c *ValetClient) Series(name string) (*SeriesInfo, error) {
 	r := SeriesResponse{}
-
-	u, err := c.urlFor("series", name)
-	if err != nil {
-		return r.Info, fmt.Errorf("joining URL: %w", err)
-	}
-
-	resp, err := http.Get(u)
-	if err != nil {
-		return r.Info, fmt.Errorf("GETting: %w", err)
-	}
-
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	if err != nil {
-		return r.Info, fmt.Errorf("Unmarshalling JSON: %w", err)
-	}
-
-	return r.Info, nil
+	return r.Info, c.getUrlFor(&r, "series", name)
 }
