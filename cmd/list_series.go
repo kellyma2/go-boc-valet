@@ -7,12 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var groupsCmd = &cobra.Command{
-	Use:   "groups",
-	Short: "Subcommands related to lists/groups endpoint",
+var listSeriesCmd = &cobra.Command{
+	Use:   "series",
+	Short: "Subcommands related to lists/series endpoint",
 	Run: func(cmd *cobra.Command, args []string) {
 		c := pkg.NewValetClient()
-		r, err := c.GroupList()
+		r, err := c.SeriesList()
 		if err != nil {
 			fmt.Println(err)
 		} else {
@@ -24,5 +24,5 @@ var groupsCmd = &cobra.Command{
 }
 
 func init() {
-	listsCmd.AddCommand(groupsCmd)
+	listsCmd.AddCommand(listSeriesCmd)
 }
