@@ -1,7 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -11,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// groupsCmd represents the groups command
 var groupsCmd = &cobra.Command{
 	Use:   "groups",
 	Short: "Subcommands related to the groups endpoint",
