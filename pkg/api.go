@@ -80,3 +80,8 @@ func (c *ValetClient) Series(name string) (*SeriesInfo, error) {
 	r := SeriesResponse{}
 	return r.Info, c.getUrlFor(&r, "series", name)
 }
+
+func (c *ValetClient) Group(name string) (*GroupInfo, error) {
+	r := GroupResponse{}
+	return r.Info, c.getUrlFor(&r, "groups", name)
+}

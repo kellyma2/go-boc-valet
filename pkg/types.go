@@ -33,9 +33,19 @@ type GroupInfo struct {
 
 	// Description of the underlying series
 	Description string `json:"description"`
+
+	// Group Series Info
+	Series map[SeriesName]*SeriesInfo `json:"groupSeries"`
 }
 
 func (g *GroupInfo) PrettyPrint() {
-	fmt.Printf("Name: %s\n\tLabel: %s\n\tDescription: %s\n\n",
+	fmt.Printf("Name: %s\n\tLabel: %s\n\tDescription: %s\n",
 		g.Name, g.Label, g.Description)
+	if len(g.Series) > 0 {
+		fmt.Println("Series Info:")
+		for name, series := range g.Series {
+			fmt.Printf("\t%s (label: %s)\n", name, series.Label)
+		}
+	}
+	fmt.Printf("\n")
 }

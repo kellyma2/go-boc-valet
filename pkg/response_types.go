@@ -13,3 +13,7 @@ type SeriesResponse struct {
 type ListGroupsResponse struct {
 	Groups map[GroupName]*GroupInfo `json:"groups"`
 }
+
+type GroupResponse struct {
+	Info *GroupInfo `json:"groupDetails"`
+}
