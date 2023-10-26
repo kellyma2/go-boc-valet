@@ -36,6 +36,9 @@ func (c *ValetClient) getUrlFor(r interface{}, suffix ...string) error {
 		return fmt.Errorf("GETting: %w", err)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("GET failed: %d", resp.StatusCode)
+	}
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(&r)
