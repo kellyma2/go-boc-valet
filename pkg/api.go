@@ -110,7 +110,7 @@ func (c *ValetClient) Group(name string) (*GroupInfo, error) {
 type ObservationOption func(o *observationOptions)
 
 type observationOptions struct {
-	series             []string
+	items              []string
 	recent             int
 	recentWeeks        int
 	recentMonths       int
@@ -118,9 +118,9 @@ type observationOptions struct {
 	startDate, endDate string
 }
 
-func WithSeries(series string) ObservationOption {
+func WithItem(items string) ObservationOption {
 	return func(o *observationOptions) {
-		o.series = append(o.series, series)
+		o.items = append(o.items, items)
 	}
 }
 
@@ -142,19 +142,21 @@ func WithEndDate(end string) ObservationOption {
 	}
 }
 
-func (c *ValetClient) SeriesObservations(
+func (c *ValetClient) getObservations(
+	r interface{},
+	path string,
 	opts ...ObservationOption,
-) (SeriesObservations, error) {
+) error {
 	configuredOpts := &observationOptions{}
 	for _, opt := range opts {
 		opt(configuredOpts)
 	}
 
-	if len(configuredOpts.series) == 0 {
-		return SeriesObservations{}, nil
+	if len(configuredOpts.items) == 0 {
+		return nil
 	}
 
-	suffix := strings.Join(configuredOpts.series, ",")
+	suffix := strings.Join(configuredOpts.items, ",")
 	queryParams := url.Values{}
 
 	if configuredOpts.recent != 0 {
@@ -190,10 +192,23 @@ func (c *ValetClient) SeriesObservations(
 		queryParams.Add("end_date", configuredOpts.endDate)
 	}
 
-	r := SeriesObservations{}
 	if len(queryParams) > 0 {
-		return r, c.getQueryUrlFor(&r, queryParams, "observations", suffix)
+		return c.getQueryUrlFor(r, queryParams, path, suffix)
 	} else {
-		return r, c.getUrlFor(&r, "observations", suffix)
+		return c.getUrlFor(r, path, suffix)
 	}
+}
+
+func (c *ValetClient) SeriesObservations(
+	opts ...ObservationOption,
+) (SeriesObservations, error) {
+	r := SeriesObservations{}
+	return r, c.getObservations(&r, "observations", opts...)
+}
+
+func (c *ValetClient) GroupObservations(
+	opts ...ObservationOption,
+) (SeriesObservations, error) {
+	r := SeriesObservations{}
+	return r, c.getObservations(&r, "observations/group", opts...)
 }

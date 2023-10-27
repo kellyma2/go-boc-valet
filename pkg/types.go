@@ -79,13 +79,16 @@ func (s *SeriesObservationInfo) PrettyPrint() {
 }
 
 type Observation struct {
-	Series string
-	Key    string
-	Value  string
+	Dimension string
+	Values    map[string]string
 }
 
 func (o *Observation) PrettyPrint() {
-	fmt.Printf("series = %s, key = %s, value = %s\n", o.Series, o.Key, o.Value)
+	fmt.Printf("Dimension = %s\n", o.Dimension)
+	for series, value := range o.Values {
+		fmt.Printf("%s = %s\n", series, value)
+	}
+	fmt.Println("")
 }
 
 func (o *Observation) UnmarshalJSON(b []byte) error {
@@ -94,24 +97,20 @@ func (o *Observation) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	if len(d) > 2 {
-		return fmt.Errorf("Observation: dimension has unexpected keys")
-	}
+	o.Values = map[string]string{}
 
 	for key, raw := range d {
 		if key == "d" {
 			if seriesKey, ok := raw.(string); ok {
-				o.Key = seriesKey
+				o.Dimension = seriesKey
 			} else {
 				return fmt.Errorf("Observation: key is not a string")
 			}
 		} else {
-			o.Series = key
-
 			if valueDict, ok := raw.(map[string]interface{}); ok {
 				if value, ok := valueDict["v"]; ok {
 					if valueStr, ok := value.(string); ok {
-						o.Value = valueStr
+						o.Values[key] = valueStr
 					} else {
 						return fmt.Errorf(
 							"Observation: value not a string")
@@ -148,4 +147,10 @@ func (s *SeriesObservations) PrettyPrint() {
 	for _, observation := range s.Observations {
 		observation.PrettyPrint()
 	}
+}
+
+type GroupObservations struct {
+}
+
+func (s *GroupObservations) PrettyPrint() {
 }

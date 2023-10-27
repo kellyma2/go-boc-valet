@@ -7,14 +7,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var observationsSeriesCmd = &cobra.Command{
-	Use:   "series",
-	Short: "Operations related to the series observations endpoint",
+var observationsGroupCmd = &cobra.Command{
+	Use:   "group",
+	Short: "Operations related to the group observations endpoint",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 		c := pkg.NewValetClient()
-		r, err := c.SeriesObservations(pkg.WithItem(name), pkg.WithRecent(10))
+		r, err := c.GroupObservations(pkg.WithItem(name), pkg.WithRecent(5))
 		if err != nil {
 			fmt.Println(err)
 		} else {
@@ -24,5 +24,5 @@ var observationsSeriesCmd = &cobra.Command{
 }
 
 func init() {
-	observationsCmd.AddCommand(observationsSeriesCmd)
+	observationsCmd.AddCommand(observationsGroupCmd)
 }
