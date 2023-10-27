@@ -3,7 +3,7 @@ package pkg
 // HTTP response structures
 
 type ListSeriesResponse struct {
-	Series map[SeriesName]*SeriesInfo `json:"series"`
+	Series map[string]*SeriesInfo `json:"series"`
 }
 
 type SeriesResponse struct {
@@ -11,7 +11,7 @@ type SeriesResponse struct {
 }
 
 type ListGroupsResponse struct {
-	Groups map[GroupName]*GroupInfo `json:"groups"`
+	Groups map[string]*GroupInfo `json:"groups"`
 }
 
 type GroupResponse struct {
